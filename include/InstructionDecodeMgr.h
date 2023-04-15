@@ -14,7 +14,7 @@ static const char* filename = "InstructionDecodeMgr.cpp";
 class InstructionDecoder : public sc_module
 {
 public:
-	//tlm_utils::simple_target_socket<InstructionDecoder, INSTRUCTION_WIDTH, tlm::tlm_base_protocol_types> pInstrBus;
+	tlm_utils::simple_target_socket<InstructionDecoder, INSTRUCTION_WIDTH, tlm::tlm_base_protocol_types> pInstrBus;
 	sc_in<uint32_t> pInstrBus;
 	sc_out<uint8_t> pRegAddr0;
 	sc_out<uint8_t> pRegAddr1;
@@ -32,13 +32,15 @@ public:
 	{
 		SC_HAS_PROCESS(InstructionDecoder);
 		
-		SC_METHOD(instructionDecodeMethod);
+		/*SC_METHOD(instructionDecodeMethod);
 		sensitive << pInstrBus;
-		dont_initialize();
+		dont_initialize();*/
 
 		std::string ctrlLogFile = "./logs/InstructionDecodeMgr.log";
 		mLogFileHandler.open(ctrlLogFile, std::fstream::trunc | std::fstream::out);
+		pInstrBus.register_b_transport(this, &InstructionDecoder::b_transport);
 	}
+	void b_transport(tlm::tlm_generic_payload& trans, sc_time& delay);
 private:
 	uint8_t decodeOpcode();
 	void decodeSrcRegAddresses();
@@ -50,7 +52,7 @@ private:
 	void decodeRegInstr();
 	void decodeBranchInstr();
 
-	void instructionDecodeMethod();
+	//void instructionDecodeMethod();
 	uint8_t mInstrWidth;
 	std::fstream mLogFileHandler;
 	

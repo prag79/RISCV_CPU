@@ -20,11 +20,14 @@ public:
 	sc_out<uint8_t> pRegAddr1;
 	sc_out<uint8_t> pRegAddr2;
 	sc_out<bool> pRegWrite;
-	sc_out<bool> pAluSrc;
 	sc_out<bool> pMemWrite;
 	sc_out<bool> pAluOp;
 	sc_out<bool> pMemToReg;
 	sc_out<bool> pBranch;
+	sc_out<bool> pIorD;
+	sc_out<bool> pAluSrcA;
+	sc_out<bool> pAluSrcB;
+	sc_out<bool> pIRWrite;
 
 	InstructionDecoder(sc_module_name nm, uint8_t instrWidth)
 		:sc_module(nm)
@@ -36,24 +39,44 @@ public:
 		sensitive << pInstrBus;
 		dont_initialize();*/
 
+		pRegWrite.write(0);
+		pAluSrcA.write(0);
+		pAluSrcB.write(0);
+		pIorD.write(0);
+		pIRWrite.write(0);
+		pBranch.write(0);
+		pAluOp.write(0);
+
 		std::string ctrlLogFile = "./logs/InstructionDecodeMgr.log";
 		mLogFileHandler.open(ctrlLogFile, std::fstream::trunc | std::fstream::out);
 		pInstrBus.register_b_transport(this, &InstructionDecoder::b_transport);
 	}
 	void b_transport(tlm::tlm_generic_payload& trans, sc_time& delay);
 private:
-	uint8_t decodeOpcode();
+	uint8_t decodeOpcode(uint8_t* dataPtr);
+	
 	void decodeSrcRegAddresses();
 	void decodeDstRegAddress();
 	uint8_t decodeFunct3();
 	uint8_t decodeFunct7();
-	void decodeLoadInstr();
-	void decodeImmInstr();
-	void decodeRegInstr();
-	void decodeBranchInstr();
+
+	void decodeLoadInstr(uint8_t* dataPtr,sc_time& delay);
+	void decodeStoreInstr(uint8_t* dataPtr, sc_time& delay);
+	void decodeImmInstr(uint8_t* dataPtr, sc_time& delay);
+	void decodeAluInstr(uint8_t* dataPtr, sc_time& delay);
+	void decodeLuiInstr(uint8_t* dataPtr, sc_time& delay);
+	void decodeBranchInstr(uint8_t* dataPtr, sc_time& delay);
 
 	//void instructionDecodeMethod();
 	uint8_t mInstrWidth;
 	std::fstream mLogFileHandler;
-	
+
+	enum decodeState {
+		S0,
+		S1,
+		S2,
+		S3,
+		S4
+	};
+    decodeState currState, nextState;
 };

@@ -23,12 +23,12 @@ public:
 	sc_out<sc_uint<7> > pOpCode;
 	sc_out<bool> pRegWrite;
 	sc_out<bool> pMemWrite;
-	sc_out<uint8_t> pAluOp;
+	sc_out<sc_uint<8> > pAluOp;
 	sc_out<bool> pMemToReg;
 	sc_out<bool> pBranch;
 	sc_out<bool> pIorD;
 	sc_out<bool> pAluSrcA;
-	sc_out<uint8_t> pAluSrcB;
+	sc_out<sc_uint<2> > pAluSrcB;
 	sc_out<bool> pIRWrite;
 	sc_out<bool> pRegDst;
 	sc_out<bool> pDataLoaded;

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ExecutionUnit.h" />
     <ClInclude Include="include\InstructionDecodeUnit.h" />
     <ClInclude Include="include\InstructionFetchUnit.h" />
     <ClInclude Include="include\RegisterFile.h" />

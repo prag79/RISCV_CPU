@@ -1,6 +1,11 @@
 #include "InstructionDecodeUnit.h"
 
-
+/** instructionDecodeThread
+	* responsible for arbitration of cmds between
+	* short and long queue
+	* @param chanNum channel Number
+	* @return SHORT/LONG
+	**/
 
 void InstructionDecodeUnit::instructionDecodeThread()
 {

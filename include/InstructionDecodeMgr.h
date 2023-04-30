@@ -1,13 +1,8 @@
 #pragma once
 #include "systemc.h"
-#include "tlm.h"
-#include "tlm_utils/simple_initiator_socket.h"
-#include "tlm_utils/simple_target_socket.h"
-#include "tlm_utils/peq_with_get.h"
 #include "reporting.h"
 #include "report.h"
-#define INSTRUCTION_WIDTH 32
-#define REG_FILE_ADDR_WIDTH 5
+
 
 static const char* filename = "InstructionDecodeMgr.cpp";
 
@@ -16,10 +11,13 @@ class InstructionDecoder : public sc_module
 public:
 	
 	sc_in<sc_uint<32> > pInstrBus;
+
 	sc_out<sc_uint<5> > pRegSrc1;
 	sc_out<sc_uint<5> > pRegSrc2;
 	sc_out<sc_uint<5> > pRegDest;
+
 	sc_out<sc_uint<32> > pImm;
+	sc_out<sc_uint<32> > pDataBus;
 	sc_out<sc_uint<3> > pFunc3;
 	sc_out<sc_uint<2> > pPCSrc;
 	sc_out<sc_uint<7> > pOpCode;
@@ -33,6 +31,7 @@ public:
 	sc_out<uint8_t> pAluSrcB;
 	sc_out<bool> pIRWrite;
 	sc_out<bool> pRegDst;
+	sc_out<bool> pDataLoaded;
 	sc_in<bool> pClk;
 
 	InstructionDecoder(sc_module_name nm)
@@ -48,7 +47,7 @@ public:
 		pAluSrcA.write(0);
 		pAluSrcB.write(0);
 		pIorD.write(0);
-		pIRWrite.write(0);
+		pIRWrite.write(1);
 		pBranch.write(0);
 		pAluOp.write(0);
 		pPCSrc.write(0);
@@ -68,8 +67,8 @@ public:
 		pAluSrcA.write(0);
 		pRegDst.write(0);
 
-		currState = Decode;
-		nextState = Decode;
+		currState = Fetch;
+		nextState = Fetch;
 		std::string ctrlLogFile = "./logs/InstructionDecodeMgr.log";
 		mLogFileHandler.open(ctrlLogFile, std::fstream::trunc | std::fstream::out);
 		
@@ -86,6 +85,7 @@ private:
 	void decodeLoadInstr(sc_uint<32> instr);
 	void decodeStoreInstr(sc_uint<32> instr);
 	void decodeImmInstr(sc_uint<32> instr);
+	void loadDataToReg(sc_uint<3> instr);
 	/*void decodeAluInstr(uint32_t instr);
 	void decodeLuiInstr(uint32_t instr);
 	void decodeBranchInstr(uint32_t instr);*/

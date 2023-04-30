@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="TestBench">
+      <UniqueIdentifier>{bdfa29f9-5ddd-4810-aa65-764e8d6f03ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestBench\Headers">
+      <UniqueIdentifier>{d94ad40e-c6e4-4aa9-9621-63f6464d2d3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestBench\source">
+      <UniqueIdentifier>{96cb7d8b-a167-42a7-a06e-5bcdc9fa99f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\InstructionDecodeMgr.h">
@@ -22,6 +31,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Report.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InstructionFetchUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

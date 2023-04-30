@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\InstructionDecodeMgr.h" />
+    <ClInclude Include="include\InstructionFetchUnit.h" />
     <ClInclude Include="include\Report.h" />
     <ClInclude Include="include\reporting.h" />
   </ItemGroup>
@@ -81,7 +82,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\prag7\source\repos\RISCV_CPU\Utilities\include;C:\Users\prag7\source\repos\RISCV_CPU\include;C:\Users\prag7\systemc\systemc-2.3.4\systemc-2.3.4\src;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\prag7\source\repos\RISCV_CPU\Utilities\include;C:\Users\prag7\source\repos\RISCV_CPU\include;C:\Users\prag7\systemc\systemc-2.3.4\systemc-2.3.4\src;C:\Users\prag7\source\repos\RISCV_CPU\TestBench\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\prag7\systemc\systemc-2.3.4\systemc-2.3.4\msvc10\SystemC\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

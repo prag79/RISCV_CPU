@@ -6,7 +6,7 @@
 
 static const char* filename = "InstructionDecodeMgr.cpp";
 
-class InstructionDecoder : public sc_module
+class InstructionDecodeUnit : public sc_module
 {
 public:
 	
@@ -34,10 +34,10 @@ public:
 	sc_out<bool> pDataLoaded;
 	sc_in<bool> pClk;
 
-	InstructionDecoder(sc_module_name nm)
+	InstructionDecodeUnit(sc_module_name nm)
 		:sc_module(nm)
 		{
-		SC_HAS_PROCESS(InstructionDecoder);
+		SC_HAS_PROCESS(InstructionDecodeUnit);
 		
 		SC_THREAD(instructionDecodeThread);
 		sensitive << pClk.pos();

@@ -6,7 +6,7 @@ public:
     // Inputs
     sc_in<sc_uint<32>> pInPC; //PC = PC+4 from ALU
     sc_in<sc_uint<32>> pAluOut; // PC calculated from branch, load and store instruction
-    sc_in<sc_uint<32> > pInMemData; // Instr or Data rom I/D Memory
+    sc_in<sc_uint<32> > pInMemData; // Instr or Data from I/D Memory
     sc_in<bool> pIorD;
     sc_in<bool> pClk;
     sc_in<bool> pDataValid;

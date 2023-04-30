@@ -1,8 +1,8 @@
-#include "InstructionDecodeMgr.h"
+#include "InstructionDecodeUnit.h"
 
 
 
-void InstructionDecoder::instructionDecodeThread()
+void InstructionDecodeUnit::instructionDecodeThread()
 {
 	while (1)
 	{
@@ -14,6 +14,8 @@ void InstructionDecoder::instructionDecodeThread()
 			pIorD.write(0); //Enable Fetch Unit to load PC 
 			pAluSrcA.write(0); //To ca
 			pAluSrcB.write(1);
+			pRegWrite.write(0);
+			pMemWrite.write(0);
 			if (pDataLoaded.read() == true)
 				nextState = Decode;
 			else
@@ -77,10 +79,11 @@ void InstructionDecoder::instructionDecodeThread()
 			break;
 		
 		}
+		currState = nextState;
 		wait();
 	}
 }
-//void InstructionDecoder::b_transport(tlm::tlm_generic_payload& trans, sc_time& delay)
+//void InstructionDecodeUnit::b_transport(tlm::tlm_generic_payload& trans, sc_time& delay)
 //{
 //	auto dataPtr = trans.get_data_ptr();
 //	auto addr = trans.get_address();
@@ -140,7 +143,7 @@ void InstructionDecoder::instructionDecodeThread()
 //	trans.set_response_status(tlm::tlm_response_status::TLM_OK_RESPONSE);
 //}
 
-void InstructionDecoder::decodeLoadInstr(sc_uint<32> instr)
+void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 {
 	
 	sc_uint<32> immVal;
@@ -205,7 +208,7 @@ void InstructionDecoder::decodeLoadInstr(sc_uint<32> instr)
 	}
 }
 
-void InstructionDecoder::decodeStoreInstr(sc_uint<32> instr)
+void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 {
 	currState = Decode;
 	nextState = Decode;
@@ -254,7 +257,7 @@ void InstructionDecoder::decodeStoreInstr(sc_uint<32> instr)
 	}
 }
 
-void InstructionDecoder::decodeImmInstr(sc_uint<32> instr)
+void InstructionDecodeUnit::decodeImmInstr(sc_uint<32> instr)
 {
 	currState = Decode;
 	nextState = Decode;
@@ -308,40 +311,40 @@ void InstructionDecoder::decodeImmInstr(sc_uint<32> instr)
 	}
 }
 
-//void InstructionDecoder::decodeAluInstr(uint8_t* dataPtr, sc_time& delay)
+//void InstructionDecodeUnit::decodeAluInstr(uint8_t* dataPtr, sc_time& delay)
 //{
 //
 //}
 //
-//void InstructionDecoder::decodeLuiInstr(uint8_t* dataPtr, sc_time& delay)
+//void InstructionDecodeUnit::decodeLuiInstr(uint8_t* dataPtr, sc_time& delay)
 //{
 //
 //}
 //
-//void InstructionDecoder::decodeBranchInstr(uint8_t* dataPtr, sc_time& delay)
+//void InstructionDecodeUnit::decodeBranchInstr(uint8_t* dataPtr, sc_time& delay)
 //{
 //
 //}
 
-sc_uint<32> InstructionDecoder::signExtendLoad()
+sc_uint<32> InstructionDecodeUnit::signExtendLoad()
 {
 	sc_bit signBit = static_cast<sc_bit> (pInstrBus.read()[31]);
 	auto immVal = pInstrBus.read().range(31, 20);
 	return (signBit ? (0xFFFFF000 | immVal ) : immVal);
 }
-sc_uint<32> InstructionDecoder::signExtendStore()
+sc_uint<32> InstructionDecodeUnit::signExtendStore()
 {
 	sc_bit signBit = static_cast<sc_bit> (pInstrBus.read()[31]);
 	auto immVal = (pInstrBus.read().range(31, 25) << 5) | pInstrBus.read().range(11,7);
 	return (signBit ? (0xFFFFF000 | immVal) : immVal);
 }
 
-sc_uint<7> InstructionDecoder::decodeOpcode()
+sc_uint<7> InstructionDecodeUnit::decodeOpcode()
 {
 	return pInstrBus.read().range(6, 0);
 }
 
-void InstructionDecoder::loadDataToReg(sc_uint<3> instr)
+void InstructionDecodeUnit::loadDataToReg(sc_uint<3> instr)
 {
 	switch (instr)
 	{
@@ -350,12 +353,12 @@ void InstructionDecoder::loadDataToReg(sc_uint<3> instr)
 		pDataBus.write(pInstrBus.read() & 0xff);
 		break;
 	}
-	case 0x1:
+	case 0x1: //lh
 	{
 		pDataBus.write(pInstrBus.read() & 0xffff);
 		break;
 	}
-	case 0x2:
+	case 0x2://lw
 	{
 		pDataBus.write(pInstrBus.read());
 		break;

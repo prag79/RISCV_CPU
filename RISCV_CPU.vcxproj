@@ -19,13 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\InstructionDecodeMgr.h" />
+    <ClInclude Include="include\InstructionDecodeUnit.h" />
     <ClInclude Include="include\InstructionFetchUnit.h" />
+    <ClInclude Include="include\RegisterFile.h" />
     <ClInclude Include="include\Report.h" />
     <ClInclude Include="include\reporting.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\InstructionDecodeMgr.cpp" />
+    <ClCompile Include="src\InstructionDecodeUnit.cpp" />
     <ClCompile Include="src\Report.cpp" />
     <ClCompile Include="src\reporting.cpp" />
   </ItemGroup>

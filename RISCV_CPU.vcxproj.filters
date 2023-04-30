@@ -24,7 +24,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\InstructionDecodeMgr.h">
+    <ClInclude Include="include\InstructionDecodeUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\reporting.h">
@@ -36,9 +36,12 @@
     <ClInclude Include="include\InstructionFetchUnit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\RegisterFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\InstructionDecodeMgr.cpp">
+    <ClCompile Include="src\InstructionDecodeUnit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\reporting.cpp">

@@ -35,18 +35,19 @@ void ExecutionUnit::ExecutionThread()
 			}
 			 }
 		}*/
-
+        pAluOut.write(mAluResult.read());
 		switch (pAluOp.read())
 		{
 		case 0x0:
 			if (pAluSrcA.read() == 0x0 && pAluSrcB.read() == 0x1) //PC = PC+4 Calculation
 			{
 				if (pDataLoaded.read() == 0x1)
-					pAluOut.write(pInPC.read() + 4);
+					mAluResult.write(pInPC.read() + 4);
+					//pAluOut.write(pInPC.read() + 4);
 			}
 			else if (pAluSrcA.read() == 0x1 && pAluSrcB.read() == 0x2) //Load/Store address offset or addi calculation
 			{
-				pAluOut.write(pSrcRegDataA.read() + pImm.read());
+				mAluResult.write(pSrcRegDataA.read() + pImm.read());
 			} 
 			else if (pAluSrcA.read() == 0x1 && pAluSrcB.read() == 0x0) //Reg Type addition
 			{

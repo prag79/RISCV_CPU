@@ -16,6 +16,7 @@ public:
 	sc_in<sc_uint<3> > pFunc3;
 	sc_in<bool> pClk;
 	sc_in<bool> pDataLoaded;
+	
 	//Output
 	sc_out<sc_uint<32> > pAluOut;
 	sc_out<bool> pZero;
@@ -46,6 +47,6 @@ private:
 		Jump
 	};
 	decodeState currState, nextState;
-
+    sc_signal<sc_uint<32> >mAluResult;
 	void ExecutionThread();
 };

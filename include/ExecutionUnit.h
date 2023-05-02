@@ -31,6 +31,7 @@ public:
 		
 		pAluOut.write(0);
 		pZero.write(0);
+		mAluResult.write(0);
 		currState = nextState = Fetch;
 	}
 private:

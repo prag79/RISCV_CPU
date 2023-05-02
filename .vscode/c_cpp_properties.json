@@ -4,7 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/Users/pragnajitdattaroy/Documents/systemc-2.3.4/include"
+                "/Users/pragnajitdattaroy/Documents/systemc-2.3.4/include",
+                "/Users/pragnajitdattaroy/Documents/RISCV_CPU/include"
             ],
             "defines": [],
             "macFrameworkPath": [

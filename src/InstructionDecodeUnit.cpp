@@ -1,10 +1,12 @@
 #include "InstructionDecodeUnit.h"
 
 /** instructionDecodeThread
-	* responsible for arbitration of cmds between
+	* Clocked thread to decode instructions and
+	* generate control signals based on specific 
+	* instruction decoding FSM
 	* short and long queue
-	* @param chanNum channel Number
-	* @return SHORT/LONG
+	* @param 
+	* @return void
 	**/
 
 void InstructionDecodeUnit::instructionDecodeThread()
@@ -88,66 +90,17 @@ void InstructionDecodeUnit::instructionDecodeThread()
 		wait();
 	}
 }
-//void InstructionDecodeUnit::b_transport(tlm::tlm_generic_payload& trans, sc_time& delay)
-//{
-//	auto dataPtr = trans.get_data_ptr();
-//	auto addr = trans.get_address();
-//	auto length = trans.get_data_length();
-//
-//	auto opcode = decodeOpcode(dataPtr);
-//	std::ostringstream msg;
-//
-//	switch (opcode)
-//	{
-//	case 0x3:
-//	{
-//		//load instructions
-//		decodeLoadInstr(dataPtr, delay);
-//		msg.str("");
-//		msg << "Load Instruction Decode Complete: ";
-//		REPORT_INFO(filename, __FUNCTION__, msg.str());
-//
-//		mLogFileHandler << "Load Instruction Decode Complete "
-//			<< "  @Time= " << dec << sc_time_stamp().to_double() << " ns"
-//			<< endl;
-//		break;
-//	}
-//	case 0x13:
-//	{
-//		//Immediate instructions
-//		decodeImmInstr(dataPtr, delay);
-//		break;
-//	}
-//	case 0x23:
-//	{
-//		//Store Instructions
-//		decodeStoreInstr(dataPtr, delay);
-//		break;
-//	}
-//	case 0x33:
-//	{
-//		//Alu Type Instructions
-//		decodeAluInstr(dataPtr, delay);
-//		break;
-//	}
-//	case 0x37:
-//	{
-//		//load upper imm instruction
-//		decodeLuiInstr(dataPtr, delay);
-//		break;
-//	}
-//	case 0x63:
-//	{   //Decode Branch Instructions
-//		decodeBranchInstr(dataPtr, delay);
-//		break;
-//	}
-//
-//
-//	}
-//
-//	trans.set_response_status(tlm::tlm_response_status::TLM_OK_RESPONSE);
-//}
 
+
+/** decodeLoadInstr
+	* implement four states/stages of load instruction
+	* FSM, 1st state/stage is Fetch, which is common
+	* to all the instruction, remaining states are implemented 
+	* in the function;Each state emits specific control signals
+	* to enable subsequent stages of the pipeline
+	* @param  instr
+	* @return void
+	**/
 void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 {
 	
@@ -213,6 +166,15 @@ void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 	}
 }
 
+/** decodeStoreInstr
+	* Implements three states/stages of store instruction
+	* FSM, 1st state/stage is Fetch, which is common
+	* to all the instruction, remaining states are implemented 
+	* in the function;Each state emits specific control signals
+	* to enable subsequent stages of the pipeline
+	* @param  instr
+	* @return void
+	**/
 void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 {
 	currState = Decode;
@@ -262,6 +224,15 @@ void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 	}
 }
 
+/** decodeImmInstr
+	* Implements four states/stages of immediate instructions
+	* FSM, 1st state/stage is Fetch, which is common
+	* to all the instruction, remaining states are implemented 
+	* in the function;Each state emits specific control signals
+	* to enable subsequent stages of the pipeline
+	* @param  instr
+	* @return void
+	**/
 void InstructionDecodeUnit::decodeImmInstr(sc_uint<32> instr)
 {
 	currState = Decode;

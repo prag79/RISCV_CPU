@@ -14,11 +14,14 @@ public:
 	sc_in<sc_uint<8> > pAluOp;
 	sc_in<sc_uint<7> > pOpCode;
 	sc_in<sc_uint<3> > pFunc3;
+	sc_in<sc_uint<2> > pPCSrc;
 	sc_in<bool> pClk;
+	sc_in<bool> pReset;
 	sc_in<bool> pDataLoaded;
 	
 	//Output
 	sc_out<sc_uint<32> > pAluOut;
+	sc_out<sc_uint<32> > pPCout;
 	sc_out<bool> pZero;
 
 	ExecutionUnit(sc_module_name nm)
@@ -26,16 +29,19 @@ public:
 	{
 		SC_HAS_PROCESS(ExecutionUnit);
 
-		SC_THREAD(ExecutionThread);
-		sensitive << pClk.pos();
+		SC_CTHREAD(ExecutionThread, pClk.pos());
+		reset_signal_is(pReset, true);
+
+		SC_METHOD(pcSourceMethod);
+		sensitive << mAluResult << mAluOut << pPCSrc;
 		
 		pAluOut.write(0);
 		pZero.write(0);
 		mAluResult.write(0);
-		currState = nextState = Fetch;
+		//currState = nextState = Fetch;
 	}
 private:
-	enum decodeState {
+	/* enum decodeState {
 		Fetch,
 		Decode,
 		MemAddr,
@@ -46,8 +52,10 @@ private:
 		//ALU_WriteBack,
 		Branch,
 		Jump
-	};
-	decodeState currState, nextState;
-    sc_signal<sc_uint<32> > mAluResult;
+	}; */
+	//decodeState currState, nextState;
+    sc_uint<32> mAluResult;
+	sc_uint<32> mAluOut;
 	void ExecutionThread();
+	void pcSourceMethod();
 };

@@ -11,6 +11,7 @@ public:
     sc_in<bool> pClk;
     sc_in<bool> pDataValid;
     sc_in<bool> pIRWrite;
+    sc_in<bool> pReset;
 
     // Outputs
     sc_out<sc_uint<32> > pAddr;//Address of I/D Memory
@@ -23,11 +24,15 @@ public:
 
         // Constructor
     SC_CTOR(InstructionFetchUnit) {
-        SC_THREAD(fetchThread);
-        sensitive << pClk.pos();
+        SC_CTHREAD(pcUpdateThread, pClk.pos());
+        reset_signal_is(pReset, true);
+        
+        SC_METHOD(dataFetchMethod);
+        sensitive << pc;
     }
 
 private:
-    void fetchThread();
-    
+    void dataFetchMethod();
+    void pcUpdateThread();
+    sc_uint<32> pc;
 };

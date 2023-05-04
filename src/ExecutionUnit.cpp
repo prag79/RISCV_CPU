@@ -2,52 +2,27 @@
 
 void ExecutionUnit::ExecutionThread()
 {
-	while (1)
+	while (true)
 	{
-		/*switch (currState)
-		{
-		case Fetch:
-			if (pDataLoaded.read())
-			{
-				if (pAluSrcA.read() == 0x0)
-				{
-					if (pAluSrcB.read() == 0x1 && pAluOp.read() == 0x0)
-					{
-						pAluOut.write(pInPC.read() + 4);
-					}
-				}
-				nextState = Decode;
-			}
-			else
-			{
-				nextState = Fetch;
-			}
-			break;
-		case Decode:
-			nextState = Execute;
-			break;
-		case Execute:
-			switch (pAluOp.read())
-			{
-			case 0x0:
-			{
-
-			}
-			 }
-		}*/
-        pAluOut.write(mAluResult.read());
+		if(pReset.read()) {
+			pAluOut.write(0);
+			pZero.write(0);
+		} 
+		else {
+        pAluOut.write(mAluResult);
+		mAluOut = mAluResult;
 		switch (pAluOp.read())
 		{
 		case 0x0:
 			if (pAluSrcA.read() == 0x0 && pAluSrcB.read() == 0x1) //PC = PC+4 Calculation
 			{
-				if (pDataLoaded.read() == 0x1)
-					mAluResult.write(pInPC.read() + 4);
+				
+					mAluResult = pInPC.read() + 4;
 					//pAluOut.write(pInPC.read() + 4);
 			}
 			else if (pAluSrcA.read() == 0x1 && pAluSrcB.read() == 0x2) //Load/Store address offset or addi calculation
 			{
-				mAluResult.write(pSrcRegDataA.read() + pImm.read());
+				mAluResult = pSrcRegDataA.read() + pImm.read();
 			} 
 			else if (pAluSrcA.read() == 0x1 && pAluSrcB.read() == 0x0) //Reg Type addition
 			{
@@ -61,6 +36,29 @@ void ExecutionUnit::ExecutionThread()
 			//do something, implementation defined internally
 			break;
 		}
+		}
 		wait();
 	}
+}
+
+void ExecutionUnit::pcSourceMethod()
+{
+
+	switch(pPCSrc.read())
+	{
+		case 0x0:
+		pPCout.write(mAluResult.read());
+		break;
+		case 0x1:
+		pPCout.write(mAluOut);
+		break;
+		case 0x2:
+		//PC calculation for jump instr
+		break;
+		
+	}
+	if(pPCSrc.read() == 0)
+	{
+		pPCout.write(mAluResult.read());
+	} else if (pPCSrc.)
 }

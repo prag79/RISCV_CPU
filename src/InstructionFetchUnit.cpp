@@ -1,5 +1,26 @@
-#include "ÏnstructionFetchUnit.h"
+#include "instructionFetchUnit.h"
 
+void instructionFetchUnit::pcUpdateThread()
+{
+    while(true)
+    {
+        if(pReset.read())
+        {
+            pc = 0;
+            
+        } else {
+            if(pIorD.read())
+            {
+                pc = pAluOut.read();
+            }
+             else {
+            pc = pInPC.read();
+            }
+        }
+        pOutPC.write(pc);
+        wait();
+    }
+}
 // Fetch logic
 void InstructionFetchUnit::fetchThread() {
     while (1)

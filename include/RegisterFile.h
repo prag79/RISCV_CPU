@@ -14,6 +14,7 @@ public:
 	sc_in<bool> pRegWrite;
 	sc_in<bool> pMemToReg;
 	sc_in<bool> pClk;
+	sc_in<bool> pReset;
 	//output
 	sc_out<sc_uint<32> > pSrcRegData1;
 	sc_out<sc_uint<32> > pSrcRegData2;
@@ -23,18 +24,17 @@ public:
 	{
 		SC_HAS_PROCESS(RegisterFile);
 
-		SC_THREAD(RegFileThread);
-		sensitive << pClk.pos();
-		dont_initialize();
+		SC_CTHREAD(RegFileThread, pClk.pos());
+		reset_signal_is(pReset, true`);
 		
 		pSrcRegData1.write(0x0);
 		pSrcRegData2.write(0x0);
 
 		for (uint8_t i = 0; i < 32; i++)
-			regData.push_back(0);
+			registers.push_back(0);
 
 	}
 private:
 	void RegFileThread();
-	vector<uint32_t> regData;
+	vector<uint32_t> registers;
 };

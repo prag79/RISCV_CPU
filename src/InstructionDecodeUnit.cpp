@@ -13,6 +13,10 @@ void InstructionDecodeUnit::instructionDecodeThread()
 {
 	while (1)
 	{
+		if(pReset.read())
+		{
+           resetPorts();
+		} else {
 		switch (currState)
 		{
 		case Fetch:
@@ -87,6 +91,7 @@ void InstructionDecodeUnit::instructionDecodeThread()
 		
 		}
 		currState = nextState;
+		}
 		wait();
 	}
 }

@@ -33,15 +33,16 @@ public:
 	sc_out<bool> pRegDst;
 	sc_out<bool> pDataLoaded;
 	sc_in<bool> pClk;
+	sc_in<bool> pReset;
 
 	InstructionDecodeUnit(sc_module_name nm)
 		:sc_module(nm)
 		{
 		SC_HAS_PROCESS(InstructionDecodeUnit);
 		
-		SC_THREAD(instructionDecodeThread);
-		sensitive << pClk.pos();
-		dont_initialize();
+		SC_CTHREAD(instructionDecodeThread, pClk.pos());
+		reset_signal_is(pReset, true);
+		
 
 		pRegWrite.write(0);
 		pAluSrcA.write(0);
@@ -93,6 +94,36 @@ private:
 	sc_uint<32> signExtendLoad();
 	sc_uint<32> signExtendStore();
 	void instructionDecodeThread();
+
+	void resetPorts()
+	{
+		pRegWrite.write(0);
+		pAluSrcA.write(0);
+		pAluSrcB.write(0);
+		pIorD.write(0);
+		pIRWrite.write(1);
+		pBranch.write(0);
+		pAluOp.write(0);
+		pPCSrc.write(0);
+		pRegSrc1.write(0);
+		pRegSrc2.write(0);
+		pRegDest.write(0);
+		pImm.write(0);
+		pFunc3.write(0);
+		pPCSrc.write(0);
+		pOpCode.write(0);
+		
+		pMemWrite.write(0);
+		
+		pMemToReg.write(0);
+		pBranch.write(0);
+		pIorD.write(0);
+		pAluSrcA.write(0);
+		pRegDst.write(0);
+
+		currState = Fetch;
+		nextState = Fetch;
+	}
 	
 	std::fstream mLogFileHandler;
 

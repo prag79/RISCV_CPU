@@ -2,40 +2,44 @@
 
 /** instructionDecodeThread
 	* Clocked thread to decode instructions and
-	* generate control signals based on specific 
-	* instruction decoding FSM
-	* short and long queue
+	* generate control signals every clock cycle based on specific 
+	* instruction decoding FSM to enable corresponding stages of the 
+	* pipeline
 	* @param 
 	* @return void
 	**/
 
 void InstructionDecodeUnit::instructionDecodeThread()
 {
-	while (1)
+	while (true)
 	{
 		if(pReset.read())
 		{
            resetPorts();
-		} else {
+		} 
+		else {
 		switch (currState)
 		{
 		case Fetch:
 		{
 			pIRWrite.write(1); //Enable Instruction Register to load the current instruction
 			pIorD.write(0); //Enable Fetch Unit to load PC 
-			pAluSrcA.write(0); //To ca
-			pAluSrcB.write(1);
 			pRegWrite.write(0);
 			pMemWrite.write(0);
-			if (pDataLoaded.read() == true)
+			if (pDataLoaded.read() == true) {
 				nextState = Decode;
+				pAluSrcA.write(0); //Enable loading current value of PC in ALU
+			    pAluSrcB.write(1); //Enable offset value of 4 to calculate PC:=PC+4
+				pAluOp.write(0); // Enable adder for calculating PC:PC+4 in the fetch stage only
+			}
 			else
 				nextState = Fetch;
+			
 			break;
 		}
 		case Decode:
-			auto instr = pInstrBus.read();
-			auto opcode = decodeOpcode();
+			sc_uint<32> instr = pInstrBus.read();
+			sc_uint<7> opcode = decodeOpcode(instr);
 
 			std::ostringstream msg;
 
@@ -43,27 +47,19 @@ void InstructionDecodeUnit::instructionDecodeThread()
 			{
 			case 0x3:
 			{
-				//load instructions
-				decodeLoadInstr(instr);
-				msg.str("");
-				msg << "Load Instruction Decode Complete: ";
-				REPORT_INFO(filename, __FUNCTION__, msg.str());
-
-				mLogFileHandler << "Load Instruction Decode Complete "
-					<< "  @Time= " << dec << sc_time_stamp().to_double() << " ns"
-					<< endl;
+				decodeLoadInstr(instr); //decode load instruction and generate control signals
 				break;
 			}
 			case 0x13:
 			{
-				//Immediate instructions
-				decodeImmInstr(instr);
+
+				decodeImmInstr(instr);  //decode Immediate instructions and generate control signals
 				break;
 			}
 			case 0x23:
 			{
-				//Store Instructions
-				decodeStoreInstr(instr);
+			
+				decodeStoreInstr(instr); //decode Store instructions and generate control signals
 				break;
 			}
 			case 0x33:
@@ -117,27 +113,23 @@ void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 		{
 
 		case Decode:
-			pAluSrcA.write(0);
-			pAluSrcB.write(0x0);
-			pAluOp.write(0);
-			pRegSrc1.write(pInstrBus.read().range(19, 15));
-			immVal = signExtendLoad();
-			pImm.write(immVal);
-			pIRWrite.write(0);
-			//decodefuncType();
+		
+			pRegSrc1.write(instr.range(19, 15)); //Write address if src1 register
+			immVal = signExtendLoad(instr); //sign extend immediate field
+			pImm.write(immVal); //Write the sign extended imm value and send it to ALU for addition
 			nextState = MemAddr;
 			wait();
 			break;
 		case MemAddr:
 			pAluSrcA.write(1);
 			pAluSrcB.write(0x2);
-			pOpCode.write(instr.range(6, 0));
+			//pOpCode.write(instr.range(6, 0));
 			pAluOp.write(0x0);
 			nextState = MemRead;
 			wait();
 			break;
 		case MemRead:
-			pIorD.write(1);
+			pIorD.write(1); //Enable memory address to come from ALU output
 			if (pDataLoaded.read())
 			{
 				nextState = MemWrBack;
@@ -147,23 +139,17 @@ void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 			}
 			wait();
 			break;
-		case MemWrBack:
-			pRegDest.write(instr.range(11, 7));
-			pRegWrite.write(1);
-			pMemToReg.write(1);
+		case RegWrBack:
+			pRegDest.write(instr.range(11, 7));//get the dest register index from instr 
+			pRegWrite.write(1); //Enable Write Register file
+			pMemToReg.write(1); //Enable data write from 
 			func3 = instr.range(14, 12);
 			loadDataToReg(func3);
 			//pFunc3.write(instr.range(14,12));
 			nextState = Fetch;
 			break;
 		default:
-			pRegWrite.write(0);
-			pAluSrcA.write(0);
-			pAluSrcB.write(0);
-			pIorD.write(0);
-			pIRWrite.write(1);
-			pBranch.write(0);
-			pAluOp.write(0);
+			
 			break;
 		}
 		currState = nextState;
@@ -176,14 +162,13 @@ void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 	* FSM, 1st state/stage is Fetch, which is common
 	* to all the instruction, remaining states are implemented 
 	* in the function;Each state emits specific control signals
-	* to enable subsequent stages of the pipeline
+	* to enable corresponding stages of the pipeline
 	* @param  instr
 	* @return void
 	**/
 void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 {
-	currState = Decode;
-	nextState = Decode;
+	
 	sc_uint<32> immVal;
 	while (currState != Fetch)
 	{
@@ -191,14 +176,13 @@ void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 		{
 
 		case Decode:
-			pAluSrcA.write(0);
-			pAluSrcB.write(0x3);
-			pAluOp.write(0);
-			pRegSrc1.write(pInstrBus.read().range(19, 15));
+			
+			pRegSrc1.write(instr.range(19, 15));
 			immVal = signExtendStore();
 			pImm.write(immVal);
 			//decodefuncType();
 			nextState = MemAddr;
+			wait();
 			break;
 		case MemAddr:
 			pAluSrcA.write(1);
@@ -206,22 +190,18 @@ void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 			//pOpCode.write(instr.range(6, 0));
 			pAluOp.write(0x0);
 			nextState = MemWrite;
+			wait();
 			break;
 		case MemWrite:
 			pIorD.write(1);
 			pRegSrc2.write(instr.range(24, 20));
-			pOpCode.write(instr.range(6, 0));
+			//pOpCode.write(instr.range(6, 0));
+			pMemWrite.write(1);
 			nextState = Fetch;
 			break;
 		
 		default:
-			pRegWrite.write(0);
-			pAluSrcA.write(0);
-			pAluSrcB.write(0);
-			pIorD.write(0);
-			pIRWrite.write(0);
-			pBranch.write(0);
-			pAluOp.write(0);
+			
 			break;
 		}
 		currState = nextState;
@@ -234,14 +214,13 @@ void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 	* FSM, 1st state/stage is Fetch, which is common
 	* to all the instruction, remaining states are implemented 
 	* in the function;Each state emits specific control signals
-	* to enable subsequent stages of the pipeline
+	* to enable corresponding stages of the pipeline
 	* @param  instr
 	* @return void
 	**/
 void InstructionDecodeUnit::decodeImmInstr(sc_uint<32> instr)
 {
-	currState = Decode;
-	nextState = Decode;
+	
 	sc_uint<32> immVal;
 	while (currState != Fetch)
 	{
@@ -249,13 +228,11 @@ void InstructionDecodeUnit::decodeImmInstr(sc_uint<32> instr)
 		{
 
 		case Decode:
-			pAluSrcA.write(0);
-			pAluSrcB.write(0x3);
-			pAluOp.write(0);
-			pRegSrc1.write(pInstrBus.read().range(19, 15));
 			
-			pImm.write(pInstrBus.read().range(31,20));
-			pFunc3.write(pInstrBus.read().range(14, 12));
+			pRegSrc1.write(pInstrBus.read().range(19, 15));
+			immVal = signExtendImm();
+			pImm.write(immVal);
+			pFunc3.write(instr.range(14, 12));
 			
 			nextState = Execute;
 			break;
@@ -264,13 +241,9 @@ void InstructionDecodeUnit::decodeImmInstr(sc_uint<32> instr)
 
 			pAluSrcB.write(0x2);
 			pAluOp.write(0x0);
-			nextState = MemRead;
+			nextState = RegWrBack;
 			break;
-		case MemRead:
-			pIorD.write(1);
-			nextState = MemWrBack;
-			break;
-		case MemWrBack:
+		case RegWrBack:
 			pRegDest.write(instr.range(11, 7));
 			pRegWrite.write(1);
 			pMemToReg.write(1);
@@ -278,13 +251,6 @@ void InstructionDecodeUnit::decodeImmInstr(sc_uint<32> instr)
 			nextState = Fetch;
 			break;
 		default:
-			pRegWrite.write(0);
-			pAluSrcA.write(0);
-			pAluSrcB.write(0);
-			pIorD.write(0);
-			pIRWrite.write(0);
-			pBranch.write(0);
-			pAluOp.write(0);
 			break;
 		}
 		currState = nextState;
@@ -307,22 +273,34 @@ void InstructionDecodeUnit::decodeImmInstr(sc_uint<32> instr)
 //
 //}
 
-sc_uint<32> InstructionDecodeUnit::signExtendLoad()
+sc_uint<32> InstructionDecodeUnit::signExtendLoad(sc_uint<32> instr)
 {
-	sc_bit signBit = static_cast<sc_bit> (pInstrBus.read()[31]);
-	auto immVal = pInstrBus.read().range(31, 20);
+	sc_bit signBit = static_cast<sc_bit> (instr[31]);
+	auto immVal = instr.range(31, 20);
 	return (signBit ? (0xFFFFF000 | immVal ) : immVal);
 }
-sc_uint<32> InstructionDecodeUnit::signExtendStore()
+sc_uint<32> InstructionDecodeUnit::signExtendStore(sc_uint<32> instr)
 {
-	sc_bit signBit = static_cast<sc_bit> (pInstrBus.read()[31]);
-	auto immVal = (pInstrBus.read().range(31, 25) << 5) | pInstrBus.read().range(11,7);
+	sc_bit signBit = static_cast<sc_bit> (instr[31]);
+	auto immVal = (instr.range(31, 25) << 5) | instr.range(11,7);
 	return (signBit ? (0xFFFFF000 | immVal) : immVal);
 }
 
-sc_uint<7> InstructionDecodeUnit::decodeOpcode()
+/** signExtendImm
+	* Not complete
+	* 
+	* @param  instr
+	* @return sc_uint<32>
+	**/
+sc_uint<32> InstructionDecodeUnit::signExtendImm(sc_uint<32> instr)
 {
-	return pInstrBus.read().range(6, 0);
+	sc_bit signBit = static_cast<sc_bit> (instr[31]);
+	auto immVal = instr.range(31, 20);
+	return (signBit ? (0xFFFFF000 | immVal ) : immVal);
+}
+sc_uint<7> InstructionDecodeUnit::decodeOpcode(sc_uint<32> instr)
+{
+	return instr.range(6,0);
 }
 
 void InstructionDecodeUnit::loadDataToReg(sc_uint<3> instr)
@@ -331,19 +309,49 @@ void InstructionDecodeUnit::loadDataToReg(sc_uint<3> instr)
 	{
 	case 0x0: //lb
 	{
-		pDataBus.write(pInstrBus.read() & 0xff);
+		pDataBus.write(pDataBus.read() & 0xff);
 		break;
 	}
 	case 0x1: //lh
 	{
-		pDataBus.write(pInstrBus.read() & 0xffff);
+		pDataBus.write(pDataBus.read() & 0xffff);
 		break;
 	}
 	case 0x2://lw
 	{
-		pDataBus.write(pInstrBus.read());
+		pDataBus.write(pDataBus.read());
 		break;
 	}
 
 	}
 }
+
+void InstructionDecodeUnit::resetPorts()
+	{
+		pRegWrite.write(0);
+		pAluSrcA.write(0);
+		pAluSrcB.write(0);
+		pIorD.write(0);
+		pIRWrite.write(1);
+		pBranch.write(0);
+		pAluOp.write(0);
+		pPCSrc.write(0);
+		pRegSrc1.write(0);
+		pRegSrc2.write(0);
+		pRegDest.write(0);
+		pImm.write(0);
+		pFunc3.write(0);
+		pPCSrc.write(0);
+		pOpCode.write(0);
+		
+		pMemWrite.write(0);
+		
+		pMemToReg.write(0);
+		pBranch.write(0);
+		pIorD.write(0);
+		pAluSrcA.write(0);
+		pRegDst.write(0);
+
+		currState = Fetch;
+		nextState = Fetch;
+	}

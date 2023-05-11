@@ -76,7 +76,10 @@ public:
 	}
 	
 private:
-	sc_uint<7> decodeOpcode();
+	
+	//Main CTHREAD
+	void instructionDecodeThread();
+
 	
 	/*void decodeSrcRegAddresses();
 	void decodeDstRegAddress();
@@ -86,44 +89,20 @@ private:
 	void decodeLoadInstr(sc_uint<32> instr);
 	void decodeStoreInstr(sc_uint<32> instr);
 	void decodeImmInstr(sc_uint<32> instr);
-	void loadDataToReg(sc_uint<3> instr);
 	/*void decodeAluInstr(uint32_t instr);
 	void decodeLuiInstr(uint32_t instr);
 	void decodeBranchInstr(uint32_t instr);*/
 
-	sc_uint<32> signExtendLoad();
-	sc_uint<32> signExtendStore();
-	void instructionDecodeThread();
+    //helper functions
+	sc_uint<7> decodeOpcode(sc_uint<32> instr);
+	void loadDataToReg(sc_uint<3> instr);
 
-	void resetPorts()
-	{
-		pRegWrite.write(0);
-		pAluSrcA.write(0);
-		pAluSrcB.write(0);
-		pIorD.write(0);
-		pIRWrite.write(1);
-		pBranch.write(0);
-		pAluOp.write(0);
-		pPCSrc.write(0);
-		pRegSrc1.write(0);
-		pRegSrc2.write(0);
-		pRegDest.write(0);
-		pImm.write(0);
-		pFunc3.write(0);
-		pPCSrc.write(0);
-		pOpCode.write(0);
-		
-		pMemWrite.write(0);
-		
-		pMemToReg.write(0);
-		pBranch.write(0);
-		pIorD.write(0);
-		pAluSrcA.write(0);
-		pRegDst.write(0);
+	sc_uint<32> signExtendLoad(sc_uint<32> instr);
+	sc_uint<32> signExtendStore(sc_uint<32> instr);
+	sc_uint<32> signExtendImm(sc_uint<32> instr);
 
-		currState = Fetch;
-		nextState = Fetch;
-	}
+	void resetPorts();
+	
 	
 	std::fstream mLogFileHandler;
 
@@ -132,12 +111,10 @@ private:
 		Decode,
 		MemAddr,
 		MemRead,
-		MemWrBack,
+		RegWrBack,
 		MemWrite,
-		Execute,
-		ALU_WriteBack,
-		Branch,
-		Jump
+		Execute
+		
 	};
     decodeState currState, nextState;
 };

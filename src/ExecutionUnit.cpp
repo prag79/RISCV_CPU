@@ -8,7 +8,8 @@ void ExecutionUnit::ExecutionThread()
 			pAluOut.write(0);
 			pZero.write(0);
 		} 
-		else {
+		else 
+		{
         pAluOut.write(mAluResult);
 		mAluOut = mAluResult;
 		switch (pAluOp.read())
@@ -36,7 +37,7 @@ void ExecutionUnit::ExecutionThread()
 			//do something, implementation defined internally
 			break;
 		}
-		}
+		} 
 		wait();
 	}
 }
@@ -60,5 +61,8 @@ void ExecutionUnit::pcSourceMethod()
 	if(pPCSrc.read() == 0)
 	{
 		pPCout.write(mAluResult.read());
-	} else if (pPCSrc.)
+	} else if (pPCSrc.read()==1)
+	{
+
+	}
 }

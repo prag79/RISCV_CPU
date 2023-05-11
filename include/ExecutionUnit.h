@@ -54,8 +54,8 @@ private:
 		Jump
 	}; */
 	//decodeState currState, nextState;
-    sc_uint<32> mAluResult;
-	sc_uint<32> mAluOut;
+    sc_signal<sc_uint<32> > mAluResult;
+	sc_signal<sc_uint<32> > mAluOut;
 	void ExecutionThread();
 	void pcSourceMethod();
 };

@@ -4,8 +4,8 @@
 SC_MODULE(InstructionFetchUnit) {
 public:
     // Inputs
-    sc_in<sc_uint<32>> pInPC; //PC = PC+4 from ALU
-    sc_in<sc_uint<32>> pAluOut; // PC calculated from branch, load and store instruction
+    sc_in<sc_uint<32> > pInPC; //PC = PC+4 from ALU
+    sc_in<sc_uint<32> > pAluOut; // PC calculated from branch, load and store instruction
     sc_in<sc_uint<32> > pInMemData; // Instr or Data from I/D Memory
     sc_in<bool> pIorD;
     sc_in<bool> pClk;
@@ -20,19 +20,23 @@ public:
     sc_out<sc_uint<32> > pOutData; //RegWrite Back data from I/D Memory
     sc_out<sc_uint<32> > pOutPC; // PC value to be sent to ALU for increment
    
-    sc_out<bool>pDataLoaded; //In case, I/D Memory takes multiple cycle
+    sc_out<bool> pDataLoaded; //In case, I/D Memory takes multiple cycle
 
         // Constructor
     SC_CTOR(InstructionFetchUnit) {
         SC_CTHREAD(pcUpdateThread, pClk.pos());
         reset_signal_is(pReset, true);
         
-        SC_METHOD(dataFetchMethod);
+        SC_METHOD(accessMemMethod);
         sensitive << pc;
+
+        SC_METHOD(getInstrOrDataMethod);
+        sensitive << pDataValid
     }
 
 private:
-    void dataFetchMethod();
+    void accessMemMethod();
+    void getInstrOrDataMethod();
     void pcUpdateThread();
-    sc_uint<32> pc;
+    sc_signal<sc_uint<32> > pc;
 };

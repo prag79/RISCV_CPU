@@ -1,20 +1,20 @@
-#include "instructionFetchUnit.h"
+#include "InstructionFetchUnit.h"
 
-void instructionFetchUnit::pcUpdateThread()
+void InstructionFetchUnit::pcUpdateThread()
 {
     while(true)
     {
         if(pReset.read())
         {
-            pc = 0;
+            pc.write(0);
             
         } else {
             if(pIorD.read())
             {
-                pc = pAluOut.read();
+                pc.write(pAluOut.read());
             }
              else {
-            pc = pInPC.read();
+            pc.write(pInPC.read());
             }
         }
         pOutPC.write(pc);
@@ -22,36 +22,31 @@ void instructionFetchUnit::pcUpdateThread()
     }
 }
 // Fetch logic
-void InstructionFetchUnit::fetchThread() {
-    while (1)
-    {
-        if (pIorD.read() == 0)
-        {
-            pAddr.write(pInPC.read());
+void InstructionFetchUnit::accessMemMethod() {
+    
+        
+         pAddr.write(pc.read());
+}
 
-        }
-        else {
-            pAddr.write(pAluOut.read());
-        }
-
+void InstructionFetchUnit::getInstrOrDataMethod()
+{
         if (pDataValid.read()==true && pIRWrite.read() == true)
         {
             pDataLoaded.write(1);
             pOutInstr.write(pInMemData.read());
-            pOutPC.write(pInPC.read());
+            
         }
         else if(pDataValid.read() == true && pIRWrite.read() == false)
         {
             pDataLoaded.write(1);
             pOutData.write(pInMemData.read());
-            pOutPC.write(pInPC.read());
+            
         }
         else
         {
             pDataLoaded.write(0);
         }
-
-        wait();
-    }
+}
+    
 
 }

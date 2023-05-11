@@ -7,6 +7,7 @@ void ExecutionUnit::ExecutionThread()
 		if(pReset.read()) {
 			pAluOut.write(0);
 			pZero.write(0);
+			pAluOut.write(0);
 		} 
 		else 
 		{

@@ -26,17 +26,14 @@ public:
     SC_CTOR(InstructionFetchUnit) {
         SC_CTHREAD(pcUpdateThread, pClk.pos());
         reset_signal_is(pReset, true);
-        
-        SC_METHOD(accessMemMethod);
-        sensitive << pc;
 
         SC_METHOD(getInstrOrDataMethod);
         sensitive << pDataValid
     }
 
 private:
-    void accessMemMethod();
+    
     void getInstrOrDataMethod();
     void pcUpdateThread();
-    sc_signal<sc_uint<32> > pc;
+    
 };

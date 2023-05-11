@@ -132,7 +132,7 @@ void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 			pIorD.write(1); //Enable memory address to come from ALU output
 			if (pDataLoaded.read())
 			{
-				nextState = MemWrBack;
+				nextState = RegWrBack;
 			}
 			else {
 				nextState = MemRead;
@@ -145,6 +145,7 @@ void InstructionDecodeUnit::decodeLoadInstr(sc_uint<32> instr)
 			pMemToReg.write(1); //Enable data write from 
 			func3 = instr.range(14, 12);
 			loadDataToReg(func3);
+	
 			//pFunc3.write(instr.range(14,12));
 			nextState = Fetch;
 			break;
@@ -195,7 +196,7 @@ void InstructionDecodeUnit::decodeStoreInstr(sc_uint<32> instr)
 		case MemWrite:
 			pIorD.write(1);
 			pRegSrc2.write(instr.range(24, 20));
-			//pOpCode.write(instr.range(6, 0));
+            //pOpCode.write(instr.range(6, 0));
 			pMemWrite.write(1);
 			nextState = Fetch;
 			break;

@@ -4,49 +4,48 @@ void InstructionFetchUnit::pcUpdateThread()
 {
     while(true)
     {
+        sc_uint<32> pc;
         if(pReset.read())
         {
-            pc.write(0);
-            
+            pAddr.write(0);
+            pOutInstr.write(0);
+            pOutData.write(0);
+
         } else {
             if(pIorD.read())
             {
                 pc.write(pAluOut.read());
+                pAddr.write(pc.read());
             }
              else {
-            pc.write(pInPC.read());
+                pc.write(pInPC.read());
+                pAddr.write(pc.read());
             }
         }
-        pOutPC.write(pc);
+        pOutPC.write(pc.read());
         wait();
     }
 }
-// Fetch logic
-void InstructionFetchUnit::accessMemMethod() {
-    
-        
-         pAddr.write(pc.read());
-}
+
 
 void InstructionFetchUnit::getInstrOrDataMethod()
 {
         if (pDataValid.read()==true && pIRWrite.read() == true)
         {
-            pDataLoaded.write(1);
+            pDataLoaded.write(true);
             pOutInstr.write(pInMemData.read());
             
         }
         else if(pDataValid.read() == true && pIRWrite.read() == false)
         {
-            pDataLoaded.write(1);
+            pDataLoaded.write(true);
             pOutData.write(pInMemData.read());
             
         }
         else
         {
-            pDataLoaded.write(0);
+            pDataLoaded.write(false);
         }
 }
     
 
-}

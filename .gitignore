@@ -363,3 +363,14 @@ MigrationBackup/
 FodyWeavers.xsd
 /Decode.cpp
 /RISCVPipeline.cpp
+src/ExecutionUnit.dSYM/Contents/Info.plist
+src/ExecutionUnit.dSYM/Contents/Resources/DWARF/ExecutionUnit
+src/InstructionDecodeUnit.dSYM/Contents/Info.plist
+src/InstructionDecodeUnit.dSYM/Contents/Resources/DWARF/InstructionDecodeUnit
+.gitignore
+src/InstructionFetchUnit.dSYM/Contents/Info.plist
+src/InstructionFetchUnit.dSYM/Contents/Resources/DWARF/InstructionFetchUnit
+.gitignore
+src/ExecutionUnit
+src/InstructionDecodeUnit
+src/InstructionFetchUnit
